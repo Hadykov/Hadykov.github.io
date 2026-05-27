@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Калькулятор расчёта</title>
+    <title>Калькулятор ин.учёта</title>
     <style>
         :root {
             --bg: #1c1c1e;
@@ -215,11 +215,11 @@
 </head>
 <body>
     <div class="calculator">
-        <h1>📋 Калькулятор</h1>
+        <h1>🚙 Калькулятор</h1>
 
         <!-- 1. Базовая ставка -->
         <div class="field-group">
-            <label for="baseRateSelect">Базовая ставка</label>
+            <label for="baseRateSelect">Базовая тариф (БТ)</label>
             <select id="baseRateSelect">
                 <option value="2500">2500</option>
                 <option value="5500" selected>5500</option>
@@ -234,7 +234,7 @@
 
         <!-- 2. Коэффициент территории -->
         <div class="field-group">
-            <label for="territoryCoefSelect">Коэффициент территории</label>
+            <label for="territoryCoefSelect">Коэффициент территории (КТ)</label>
             <select id="territoryCoefSelect">
                 <option value="1.7" selected>1.7</option>
                 <option value="1">1</option>
@@ -248,7 +248,7 @@
 
         <!-- 3. Коэффициент мощности -->
         <div class="field-group">
-            <label for="powerCoefSelect">Коэффициент мощности</label>
+            <label for="powerCoefSelect">Коэффициент мощности (КМ)</label>
             <select id="powerCoefSelect">
                 <option value="1.1">1.1</option>
                 <option value="1.2">1.2</option>
@@ -263,17 +263,17 @@
 
         <!-- 4. Коэффициент периода -->
         <div class="field-group">
-            <label for="periodCoef">Коэффициент периода</label>
+            <label for="periodCoef">Коэффициент периода (КП)</label>
             <input type="number" id="periodCoef" value="1" step="any" min="0" placeholder="1">
         </div>
 
         <!-- 5. Коэффициент ограничения -->
         <div class="field-group">
-            <label for="restrictionSelect">Коэффициент ограничения</label>
+            <label for="restrictionSelect">Коэффициент ограничения (КО)</label>
             <select id="restrictionSelect">
                 <option value="1" selected>1 (Ограниченный)</option>
-                <option value="3.16">3.16 (неограниченный)</option>
-                <option value="1.97">1.97 (неограниченный юр.лицо)</option>
+                <option value="3.16">3.16 (Неограниченный)</option>
+                <option value="1.97">1.97 (Неограниченный Юр.лицо)</option>
             </select>
         </div>
 
@@ -305,7 +305,7 @@
 
         <!-- 7. Коэффициент возраст/стаж -->
         <div class="field-group" id="ageExperienceGroup">
-            <label for="ageExperienceCoef">Коэффициент возраст / стаж</label>
+            <label for="ageExperienceCoef">Коэффициент возраст - стаж (КВС)</label>
             <input type="number" id="ageExperienceCoef" value="1" step="any" min="0" placeholder="1">
         </div>
 
@@ -320,7 +320,7 @@
     </div>
 
     <footer class="footer">
-        По вопросам обращаться в <a href="https://t.me/hadykov" target="_blank" rel="noopener noreferrer">Telegram @hadykov</a>
+        По вопросам обращаться в <a href="https://t.me/hadykov" target="_blank" rel="noopener noreferrer">Telegram</a>
     </footer>
 
     <script>
