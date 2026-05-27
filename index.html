@@ -17,7 +17,6 @@
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             --shadow-btn: 0 4px 12px rgba(10, 132, 255, 0.35);
             --result-bg: #3a3a3c;
-            --static-bg: #3a3a3c;
             --radius: 16px;
             --font-large: 1.2rem;
             --font-medium: 1rem;
@@ -43,7 +42,6 @@
             padding: 20px 16px;
             color: var(--text);
             -webkit-font-smoothing: antialiased;
-            transition: background 0.2s ease;
         }
 
         .calculator {
@@ -81,8 +79,7 @@
             padding-left: 4px;
         }
 
-        select,
-        input {
+        select, input {
             font-size: var(--font-large);
             padding: 14px 16px;
             border-radius: 12px;
@@ -95,7 +92,6 @@
             font-family: inherit;
             transition: border-color 0.15s;
             outline: none;
-            letter-spacing: -0.2px;
         }
 
         select {
@@ -127,17 +123,8 @@
             display: block;
         }
 
-        .custom-input-wrapper input {
-            width: 100%;
-        }
-
-        .conditional-group {
-            transition: opacity 0.2s ease, max-height 0.2s ease;
-            overflow: hidden;
-        }
-
-        .conditional-group.hidden {
-            display: none;
+        .hidden {
+            display: none !important;
         }
 
         .btn-calculate {
@@ -196,8 +183,7 @@
             display: block;
         }
 
-        select:focus,
-        input:focus {
+        select:focus, input:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.25);
         }
@@ -216,37 +202,14 @@
             color: var(--primary);
             text-decoration: none;
             font-weight: 500;
-            transition: opacity 0.2s;
-        }
-
-        .footer a:hover {
-            opacity: 0.8;
         }
 
         @media (max-width: 380px) {
-            .calculator {
-                padding: 20px 14px 18px;
-                gap: 16px;
-            }
-            h1 {
-                font-size: 1.6rem;
-            }
-            select,
-            input {
-                font-size: 1rem;
-                padding: 12px 14px;
-            }
-            .btn-calculate {
-                padding: 16px;
-                font-size: 1.15rem;
-            }
-            .result-value {
-                font-size: 2.2rem;
-            }
-            .footer {
-                font-size: 0.8rem;
-                margin-top: 16px;
-            }
+            .calculator { padding: 20px 14px 18px; gap: 16px; }
+            h1 { font-size: 1.6rem; }
+            select, input { font-size: 1rem; padding: 12px 14px; }
+            .btn-calculate { padding: 16px; font-size: 1.15rem; }
+            .result-value { font-size: 2.2rem; }
         }
     </style>
 </head>
@@ -314,8 +277,8 @@
             </select>
         </div>
 
-        <!-- 6. Коэффициент бонус-малус (КБМ) – отдельный блок -->
-        <div class="field-group conditional-group" id="bonusMalusGroup">
+        <!-- 6. Коэффициент бонус-малус (КБМ) -->
+        <div class="field-group" id="bonusMalusGroup">
             <label for="bonusMalusSelect">Коэффициент бонус-малус (КБМ)</label>
             <select id="bonusMalusSelect">
                 <option value="0.46">0.46</option>
@@ -340,8 +303,8 @@
             </div>
         </div>
 
-        <!-- 7. Коэффициент возраст/стаж – отдельный блок -->
-        <div class="field-group conditional-group" id="ageExperienceGroup">
+        <!-- 7. Коэффициент возраст/стаж -->
+        <div class="field-group" id="ageExperienceGroup">
             <label for="ageExperienceCoef">Коэффициент возраст / стаж</label>
             <input type="number" id="ageExperienceCoef" value="1" step="any" min="0" placeholder="1">
         </div>
@@ -384,13 +347,13 @@
             const resultCard = document.getElementById('resultCard');
             const resultValue = document.getElementById('resultValue');
 
-            function toggleCustomInput(selectElement, wrapperElement, inputElement) {
-                if (selectElement.value === 'custom') {
-                    wrapperElement.classList.add('active');
-                    inputElement.focus();
+            function toggleCustomInput(select, wrapper, input) {
+                if (select.value === 'custom') {
+                    wrapper.classList.add('active');
+                    input.focus();
                 } else {
-                    wrapperElement.classList.remove('active');
-                    inputElement.value = '';
+                    wrapper.classList.remove('active');
+                    input.value = '';
                 }
             }
 
@@ -399,21 +362,15 @@
             powerCoefSelect.addEventListener('change', () => toggleCustomInput(powerCoefSelect, powerCoefWrapper, powerCoefCustom));
             bonusMalusSelect.addEventListener('change', () => toggleCustomInput(bonusMalusSelect, bonusMalusWrapper, bonusMalusCustom));
 
-            // Управление видимостью групп в зависимости от ограничения
             function updateConditionalFields() {
-                const restrictionValue = restrictionSelect.value;
-                // Ограниченный (1) – оба видны
-                if (restrictionValue === '1') {
+                const val = restrictionSelect.value;
+                if (val === '1') {
                     bonusMalusGroup.classList.remove('hidden');
                     ageExperienceGroup.classList.remove('hidden');
-                }
-                // Неограниченный (3.16) – оба скрыты
-                else if (restrictionValue === '3.16') {
+                } else if (val === '3.16') {
                     bonusMalusGroup.classList.add('hidden');
                     ageExperienceGroup.classList.add('hidden');
-                }
-                // Неограниченный юр.лицо (1.97) – КБМ виден, возраст скрыт
-                else if (restrictionValue === '1.97') {
+                } else if (val === '1.97') {
                     bonusMalusGroup.classList.remove('hidden');
                     ageExperienceGroup.classList.add('hidden');
                 }
@@ -422,9 +379,9 @@
 
             restrictionSelect.addEventListener('change', updateConditionalFields);
 
-            function getNumericValue(select, inputElement) {
+            function getNumericValue(select, input) {
                 if (select.value === 'custom') {
-                    const val = inputElement.value.trim();
+                    const val = input.value.trim();
                     if (val === '') return NaN;
                     const num = parseFloat(val);
                     return isNaN(num) || num < 0 ? NaN : num;
@@ -440,66 +397,43 @@
                 const period = periodRaw === '' ? NaN : parseFloat(periodRaw);
                 const restriction = parseFloat(restrictionSelect.value);
 
-                // Определяем КБМ и возраст/стаж в зависимости от видимости и значения ограничения
                 let bonusMalus = 1;
                 let ageExp = 1;
+                const restrictionVal = restrictionSelect.value;
 
-                const restrictionValue = restrictionSelect.value;
-                if (restrictionValue === '1') {
-                    // Ограниченный – используем видимые поля
+                if (restrictionVal === '1') {
                     bonusMalus = getNumericValue(bonusMalusSelect, bonusMalusCustom);
-                    const ageExpRaw = ageExperienceCoef.value.trim();
-                    ageExp = ageExpRaw === '' ? NaN : parseFloat(ageExpRaw);
-                } else if (restrictionValue === '3.16') {
-                    // Неограниченный – скрыты оба, используем 1.17 и 1
+                    const ageRaw = ageExperienceCoef.value.trim();
+                    ageExp = ageRaw === '' ? NaN : parseFloat(ageRaw);
+                } else if (restrictionVal === '3.16') {
                     bonusMalus = 1.17;
                     ageExp = 1;
-                } else if (restrictionValue === '1.97') {
-                    // Неограниченный юр.лицо – КБМ видим, возраст скрыт =1
+                } else if (restrictionVal === '1.97') {
                     bonusMalus = getNumericValue(bonusMalusSelect, bonusMalusCustom);
                     ageExp = 1;
                 }
 
-                // Валидация
-                if (isNaN(base) || base < 0) {
-                    showError('Введите корректную базовую ставку');
-                    return;
-                }
-                if (isNaN(territory) || territory < 0) {
-                    showError('Введите корректный коэффициент территории');
-                    return;
-                }
-                if (isNaN(power) || power < 0) {
-                    showError('Введите корректный коэффициент мощности');
-                    return;
-                }
-                if (isNaN(period) || period < 0) {
-                    showError('Введите корректный коэффициент периода');
-                    return;
-                }
-                if (isNaN(restriction) || restriction <= 0) {
-                    showError('Некорректный коэффициент ограничения');
-                    return;
-                }
+                if (isNaN(base) || base < 0) { showError('Введите корректную базовую ставку'); return; }
+                if (isNaN(territory) || territory < 0) { showError('Введите корректный коэффициент территории'); return; }
+                if (isNaN(power) || power < 0) { showError('Введите корректный коэффициент мощности'); return; }
+                if (isNaN(period) || period < 0) { showError('Введите корректный коэффициент периода'); return; }
+                if (isNaN(restriction) || restriction <= 0) { showError('Некорректный коэффициент ограничения'); return; }
                 if (!bonusMalusGroup.classList.contains('hidden') && (isNaN(bonusMalus) || bonusMalus < 0)) {
-                    showError('Введите корректный коэффициент бонус-малус');
-                    return;
+                    showError('Введите корректный КБМ'); return;
                 }
                 if (!ageExperienceGroup.classList.contains('hidden') && (isNaN(ageExp) || ageExp < 0)) {
-                    showError('Введите корректный коэффициент возраст/стаж');
-                    return;
+                    showError('Введите корректный коэффициент возраст/стаж'); return;
                 }
 
                 hideError();
-
                 const result = base * territory * power * period * restriction * bonusMalus * ageExp;
-                const formattedResult = result % 1 === 0 ? result.toFixed(0) : result.toFixed(2);
-                resultValue.textContent = Number(formattedResult).toLocaleString('ru-RU');
+                const formatted = result % 1 === 0 ? result.toFixed(0) : result.toFixed(2);
+                resultValue.textContent = Number(formatted).toLocaleString('ru-RU');
                 resultCard.style.display = 'block';
             }
 
-            function showError(message) {
-                errorMessage.textContent = message;
+            function showError(msg) {
+                errorMessage.textContent = msg;
                 errorMessage.classList.add('show');
                 resultCard.style.display = 'none';
             }
