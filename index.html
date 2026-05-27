@@ -6,46 +6,24 @@
     <title>Калькулятор расчёта</title>
     <style>
         :root {
-            --bg: #f5f5f7;
-            --card-bg: #ffffff;
-            --primary: #007aff;
-            --primary-active: #005fcc;
-            --text: #1c1c1e;
-            --text-secondary: #6e6e73;
-            --border: #d1d1d6;
-            --input-bg: #ffffff;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --shadow-btn: 0 4px 12px rgba(0, 122, 255, 0.25);
-            --result-bg: #f2f2f7;
-            --static-bg: #f2f2f7;
+            /* Тёмная тема по умолчанию */
+            --bg: #1c1c1e;
+            --card-bg: #2c2c2e;
+            --primary: #0a84ff;
+            --primary-active: #0066d6;
+            --text: #ffffff;
+            --text-secondary: #98989d;
+            --border: #3a3a3c;
+            --input-bg: #3a3a3c;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-btn: 0 4px 12px rgba(10, 132, 255, 0.35);
+            --result-bg: #3a3a3c;
+            --static-bg: #3a3a3c;
             --radius: 16px;
             --font-large: 1.2rem;
             --font-medium: 1rem;
             --font-small: 0.9rem;
-            --transition-speed: 0.3s;
-            --select-chevron: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%236e6e73" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
-            --heading-color: #000;
-        }
-
-        /* Тёмная тема */
-        :root.dark,
-        @media (prefers-color-scheme: dark) {
-            :root:not(.light) {
-                --bg: #000000;
-                --card-bg: #1c1c1e;
-                --primary: #0a84ff;
-                --primary-active: #0066d6;
-                --text: #ffffff;
-                --text-secondary: #98989d;
-                --border: #3a3a3c;
-                --input-bg: #2c2c2e;
-                --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-                --shadow-btn: 0 4px 12px rgba(10, 132, 255, 0.35);
-                --result-bg: #2c2c2e;
-                --static-bg: #2c2c2e;
-                --select-chevron: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2398989d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
-                --heading-color: #ffffff;
-            }
+            --select-chevron: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2398989d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
         }
 
         * {
@@ -65,7 +43,7 @@
             padding: 20px 16px;
             color: var(--text);
             -webkit-font-smoothing: antialiased;
-            transition: background var(--transition-speed) ease, color var(--transition-speed) ease;
+            transition: background 0.2s ease;
         }
 
         .calculator {
@@ -73,91 +51,20 @@
             max-width: 420px;
             background: var(--card-bg);
             border-radius: 28px;
-            padding: 24px 20px 24px;
+            padding: 28px 20px 24px;
             box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            transition: background var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-            position: relative;
-        }
-
-        /* Шапка с заголовком и переключателем темы */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
+            gap: 22px;
         }
 
         h1 {
-            font-size: 1.7rem;
-            font-weight: 620;
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 4px;
             letter-spacing: -0.3px;
-            color: var(--heading-color);
-            transition: color var(--transition-speed) ease;
-            margin: 0;
-            flex: 1;
-        }
-
-        /* Кнопка переключения темы */
-        .theme-toggle {
-            background: var(--input-bg);
-            border: 1.5px solid var(--border);
-            border-radius: 50%;
-            width: 42px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.3rem;
-            transition: all var(--transition-speed) ease;
-            flex-shrink: 0;
             color: var(--text);
-            line-height: 1;
-            padding: 0;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        .theme-toggle:active {
-            transform: scale(0.93);
-            background: var(--border);
-        }
-        .theme-toggle .icon-sun,
-        .theme-toggle .icon-moon {
-            transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease;
-            position: absolute;
-        }
-        .theme-toggle .icon-sun {
-            opacity: 0;
-            transform: scale(0.6);
-        }
-        .theme-toggle .icon-moon {
-            opacity: 1;
-            transform: scale(1);
-        }
-        /* В тёмной теме показываем солнце */
-        :root.dark .theme-toggle .icon-sun,
-        @media (prefers-color-scheme: dark) {
-            :root:not(.light) .theme-toggle .icon-sun {
-                opacity: 1;
-                transform: scale(1);
-            }
-            :root:not(.light) .theme-toggle .icon-moon {
-                opacity: 0;
-                transform: scale(0.6);
-            }
-        }
-        /* В светлой теме показываем луну (уже по умолчанию) */
-        :root.light .theme-toggle .icon-sun {
-            opacity: 0;
-            transform: scale(0.6);
-        }
-        :root.light .theme-toggle .icon-moon {
-            opacity: 1;
-            transform: scale(1);
         }
 
         .field-group {
@@ -172,15 +79,9 @@
             color: var(--text-secondary);
             letter-spacing: -0.2px;
             padding-left: 4px;
-            transition: color var(--transition-speed) ease;
         }
 
-        .input-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
+        /* Убрали input-row, теперь поле ввода будет отдельно */
         select,
         input {
             font-size: var(--font-large);
@@ -193,7 +94,7 @@
             appearance: none;
             -webkit-appearance: none;
             font-family: inherit;
-            transition: all var(--transition-speed) ease;
+            transition: border-color 0.15s;
             outline: none;
             letter-spacing: -0.2px;
         }
@@ -218,27 +119,18 @@
             height: 32px;
         }
 
-        select:focus,
-        input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
-        }
-        :root.dark select:focus,
-        :root.dark input:focus,
-        @media (prefers-color-scheme: dark) {
-            :root:not(.light) select:focus,
-            :root:not(.light) input:focus {
-                box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.25);
-            }
-        }
-
-        .custom-input {
+        /* Обёртка для кастомного поля ввода */
+        .custom-input-wrapper {
             display: none;
-            flex: 1;
+            margin-top: 6px;
         }
 
-        .custom-input.active {
+        .custom-input-wrapper.active {
             display: block;
+        }
+
+        .custom-input-wrapper input {
+            width: 100%;
         }
 
         .static-value {
@@ -251,7 +143,6 @@
             width: 100%;
             display: flex;
             align-items: center;
-            transition: background var(--transition-speed) ease, color var(--transition-speed) ease;
         }
 
         .btn-calculate {
@@ -263,12 +154,12 @@
             font-size: 1.25rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.1s;
             text-align: center;
             width: 100%;
             letter-spacing: -0.2px;
             box-shadow: var(--shadow-btn);
-            margin-top: 4px;
+            margin-top: 8px;
         }
 
         .btn-calculate:active {
@@ -281,15 +172,13 @@
             border-radius: 16px;
             padding: 20px;
             text-align: center;
-            margin-top: 2px;
-            transition: background var(--transition-speed) ease;
+            margin-top: 6px;
         }
 
         .result-label {
             font-size: var(--font-small);
             color: var(--text-secondary);
             margin-bottom: 4px;
-            transition: color var(--transition-speed) ease;
         }
 
         .result-value {
@@ -298,41 +187,33 @@
             letter-spacing: -0.5px;
             color: var(--text);
             word-break: break-word;
-            transition: color var(--transition-speed) ease;
         }
 
         .error-message {
-            color: #ff3b30;
+            color: #ff453a;
             font-size: 0.85rem;
             margin-top: 2px;
             padding-left: 4px;
             display: none;
-        }
-        :root.dark .error-message,
-        @media (prefers-color-scheme: dark) {
-            :root:not(.light) .error-message {
-                color: #ff453a;
-            }
         }
 
         .error-message.show {
             display: block;
         }
 
-        /* Адаптивность */
-        @media (max-width: 420px) {
+        select:focus,
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.25);
+        }
+
+        @media (max-width: 380px) {
             .calculator {
-                padding: 20px 16px 20px;
+                padding: 20px 14px 18px;
                 gap: 16px;
-                border-radius: 24px;
             }
             h1 {
-                font-size: 1.5rem;
-            }
-            .theme-toggle {
-                width: 38px;
-                height: 38px;
-                font-size: 1.2rem;
+                font-size: 1.6rem;
             }
             select,
             input,
@@ -340,151 +221,60 @@
                 font-size: 1rem;
                 padding: 12px 14px;
             }
-            select {
-                padding-right: 36px;
-                background-position: right 10px center;
-                background-size: 16px;
-            }
             .btn-calculate {
                 padding: 16px;
                 font-size: 1.15rem;
-                border-radius: 12px;
             }
             .result-value {
                 font-size: 2.2rem;
-            }
-            .result-card {
-                padding: 16px;
-                border-radius: 14px;
-            }
-        }
-
-        @media (max-width: 340px) {
-            body {
-                padding: 12px 8px;
-            }
-            .calculator {
-                padding: 16px 12px 16px;
-                gap: 12px;
-                border-radius: 20px;
-            }
-            h1 {
-                font-size: 1.3rem;
-            }
-            .theme-toggle {
-                width: 34px;
-                height: 34px;
-                font-size: 1rem;
-            }
-            select,
-            input,
-            .static-value {
-                font-size: 0.9rem;
-                padding: 10px 12px;
-            }
-            select {
-                padding-right: 30px;
-                background-position: right 8px center;
-                background-size: 14px;
-            }
-            .btn-calculate {
-                padding: 14px;
-                font-size: 1rem;
-                border-radius: 10px;
-            }
-            .result-value {
-                font-size: 1.8rem;
-            }
-            label {
-                font-size: 0.8rem;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .calculator {
-                padding: 32px 28px 28px;
-                gap: 24px;
-                border-radius: 32px;
-                max-width: 460px;
-            }
-            h1 {
-                font-size: 2rem;
-            }
-            .theme-toggle {
-                width: 46px;
-                height: 46px;
-                font-size: 1.4rem;
-            }
-            select,
-            input,
-            .static-value {
-                font-size: 1.25rem;
-                padding: 16px 18px;
-            }
-            select {
-                padding-right: 44px;
-            }
-            .btn-calculate {
-                padding: 20px;
-                font-size: 1.35rem;
-                border-radius: 16px;
-            }
-            .result-value {
-                font-size: 3rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <div class="header">
-            <h1>📋 Калькулятор</h1>
-            <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
-                <span class="icon-sun">☀️</span>
-                <span class="icon-moon">🌙</span>
-            </button>
-        </div>
+        <h1>📋 Калькулятор</h1>
 
         <!-- Базовая ставка -->
         <div class="field-group">
             <label for="baseRateSelect">Базовая ставка</label>
-            <div class="input-row">
-                <select id="baseRateSelect">
-                    <option value="5500" selected>5500</option>
-                    <option value="6050">6050</option>
-                    <option value="8665">8665</option>
-                    <option value="custom">Другое…</option>
-                </select>
-                <input type="number" id="baseRateCustom" class="custom-input" placeholder="Введите" step="any" min="0">
+            <select id="baseRateSelect">
+                <option value="5500" selected>5500</option>
+                <option value="6050">6050</option>
+                <option value="8665">8665</option>
+                <option value="custom">Другое…</option>
+            </select>
+            <div class="custom-input-wrapper" id="baseRateWrapper">
+                <input type="number" id="baseRateCustom" placeholder="Введите значение" step="any" min="0">
             </div>
         </div>
 
         <!-- Коэффициент территории -->
         <div class="field-group">
             <label for="territoryCoefSelect">Коэффициент территории</label>
-            <div class="input-row">
-                <select id="territoryCoefSelect">
-                    <option value="1.7" selected>1.7</option>
-                    <option value="1">1</option>
-                    <option value="0.9">0.9</option>
-                    <option value="custom">Другое…</option>
-                </select>
-                <input type="number" id="territoryCoefCustom" class="custom-input" placeholder="Введите" step="any" min="0">
+            <select id="territoryCoefSelect">
+                <option value="1.7" selected>1.7</option>
+                <option value="1">1</option>
+                <option value="0.9">0.9</option>
+                <option value="custom">Другое…</option>
+            </select>
+            <div class="custom-input-wrapper" id="territoryCoefWrapper">
+                <input type="number" id="territoryCoefCustom" placeholder="Введите значение" step="any" min="0">
             </div>
         </div>
 
         <!-- Коэффициент мощности -->
         <div class="field-group">
             <label for="powerCoefSelect">Коэффициент мощности</label>
-            <div class="input-row">
-                <select id="powerCoefSelect">
-                    <option value="1.1">1.1</option>
-                    <option value="1.2">1.2</option>
-                    <option value="1.4">1.4</option>
-                    <option value="1.6" selected>1.6</option>
-                    <option value="custom">Другое…</option>
-                </select>
-                <input type="number" id="powerCoefCustom" class="custom-input" placeholder="Введите" step="any" min="0">
+            <select id="powerCoefSelect">
+                <option value="1.1">1.1</option>
+                <option value="1.2">1.2</option>
+                <option value="1.4">1.4</option>
+                <option value="1.6" selected>1.6</option>
+                <option value="custom">Другое…</option>
+            </select>
+            <div class="custom-input-wrapper" id="powerCoefWrapper">
+                <input type="number" id="powerCoefCustom" placeholder="Введите значение" step="any" min="0">
             </div>
         </div>
 
@@ -497,26 +287,26 @@
         <!-- Коэффициент бонус-малус -->
         <div class="field-group">
             <label for="bonusMalusSelect">Коэффициент бонус-малус (КБМ)</label>
-            <div class="input-row">
-                <select id="bonusMalusSelect">
-                    <option value="0.46">0.46</option>
-                    <option value="0.52">0.52</option>
-                    <option value="0.57">0.57</option>
-                    <option value="0.63">0.63</option>
-                    <option value="0.68">0.68</option>
-                    <option value="0.74">0.74</option>
-                    <option value="0.78">0.78</option>
-                    <option value="0.83">0.83</option>
-                    <option value="0.91">0.91</option>
-                    <option value="1" selected>1</option>
-                    <option value="1.17">1.17</option>
-                    <option value="1.76">1.76</option>
-                    <option value="2.25">2.25</option>
-                    <option value="2.94">2.94</option>
-                    <option value="3.92">3.92</option>
-                    <option value="custom">Другое…</option>
-                </select>
-                <input type="number" id="bonusMalusCustom" class="custom-input" placeholder="Введите" step="any" min="0">
+            <select id="bonusMalusSelect">
+                <option value="0.46">0.46</option>
+                <option value="0.52">0.52</option>
+                <option value="0.57">0.57</option>
+                <option value="0.63">0.63</option>
+                <option value="0.68">0.68</option>
+                <option value="0.74">0.74</option>
+                <option value="0.78">0.78</option>
+                <option value="0.83">0.83</option>
+                <option value="0.91">0.91</option>
+                <option value="1" selected>1</option>
+                <option value="1.17">1.17</option>
+                <option value="1.76">1.76</option>
+                <option value="2.25">2.25</option>
+                <option value="2.94">2.94</option>
+                <option value="3.92">3.92</option>
+                <option value="custom">Другое…</option>
+            </select>
+            <div class="custom-input-wrapper" id="bonusMalusWrapper">
+                <input type="number" id="bonusMalusCustom" placeholder="Введите значение" step="any" min="0">
             </div>
         </div>
 
@@ -532,105 +322,63 @@
 
     <script>
         (function() {
-            // --- Работа с темой ---
-            const html = document.documentElement;
-            const themeToggle = document.getElementById('theme-toggle') || document.getElementById('themeToggle');
-
-            // Применение темы
-            function applyTheme(theme) {
-                if (theme === 'dark') {
-                    html.classList.add('dark');
-                    html.classList.remove('light');
-                } else if (theme === 'light') {
-                    html.classList.add('light');
-                    html.classList.remove('dark');
-                } else {
-                    // Авто: удаляем оба класса, полагаемся на системные настройки через media query
-                    html.classList.remove('dark', 'light');
-                }
-            }
-
-            // Получение сохранённой темы
-            function getSavedTheme() {
-                return localStorage.getItem('calculator-theme') || 'auto';
-            }
-
-            // Сохранение темы
-            function saveTheme(theme) {
-                localStorage.setItem('calculator-theme', theme);
-            }
-
-            // Инициализация темы при загрузке
-            const savedTheme = getSavedTheme();
-            applyTheme(savedTheme);
-
-            // Обработчик кнопки переключения темы
-            if (themeToggle) {
-                themeToggle.addEventListener('click', () => {
-                    const currentTheme = getSavedTheme();
-                    let newTheme;
-                    if (currentTheme === 'dark') {
-                        newTheme = 'light';
-                    } else if (currentTheme === 'light') {
-                        newTheme = 'auto';
-                    } else {
-                        // Если сейчас авто, определяем, какая тема активна визуально
-                        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                        newTheme = isDark ? 'light' : 'dark';
-                    }
-                    saveTheme(newTheme);
-                    applyTheme(newTheme);
-                });
-            }
-
-            // Отслеживание системных изменений темы, когда выбрано "auto"
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-                if (getSavedTheme() === 'auto') {
-                    // Просто позволяем CSS media query сработать — классы не трогаем
-                    // Ничего не делаем, стили обновятся автоматически
-                }
-            });
-
-            // --- Логика калькулятора ---
+            // Получаем элементы
             const baseRateSelect = document.getElementById('baseRateSelect');
+            const baseRateWrapper = document.getElementById('baseRateWrapper');
             const baseRateCustom = document.getElementById('baseRateCustom');
             const territoryCoefSelect = document.getElementById('territoryCoefSelect');
+            const territoryCoefWrapper = document.getElementById('territoryCoefWrapper');
             const territoryCoefCustom = document.getElementById('territoryCoefCustom');
             const powerCoefSelect = document.getElementById('powerCoefSelect');
+            const powerCoefWrapper = document.getElementById('powerCoefWrapper');
             const powerCoefCustom = document.getElementById('powerCoefCustom');
             const ageExperienceCoef = document.getElementById('ageExperienceCoef');
             const bonusMalusSelect = document.getElementById('bonusMalusSelect');
+            const bonusMalusWrapper = document.getElementById('bonusMalusWrapper');
             const bonusMalusCustom = document.getElementById('bonusMalusCustom');
             const calculateBtn = document.getElementById('calculateBtn');
             const errorMessage = document.getElementById('errorMessage');
             const resultCard = document.getElementById('resultCard');
             const resultValue = document.getElementById('resultValue');
 
-            function toggleCustomInput(selectElement, customInput) {
+            // Функция переключения видимости кастомного поля (теперь через wrapper)
+            function toggleCustomInput(selectElement, wrapperElement, inputElement) {
                 if (selectElement.value === 'custom') {
-                    customInput.classList.add('active');
-                    customInput.focus();
+                    wrapperElement.classList.add('active');
+                    inputElement.focus();
                 } else {
-                    customInput.classList.remove('active');
-                    customInput.value = '';
+                    wrapperElement.classList.remove('active');
+                    inputElement.value = '';
                 }
             }
 
-            baseRateSelect.addEventListener('change', () => toggleCustomInput(baseRateSelect, baseRateCustom));
-            territoryCoefSelect.addEventListener('change', () => toggleCustomInput(territoryCoefSelect, territoryCoefCustom));
-            powerCoefSelect.addEventListener('change', () => toggleCustomInput(powerCoefSelect, powerCoefCustom));
-            bonusMalusSelect.addEventListener('change', () => toggleCustomInput(bonusMalusSelect, bonusMalusCustom));
+            // Слушатели изменений select'ов
+            baseRateSelect.addEventListener('change', () => {
+                toggleCustomInput(baseRateSelect, baseRateWrapper, baseRateCustom);
+            });
+            territoryCoefSelect.addEventListener('change', () => {
+                toggleCustomInput(territoryCoefSelect, territoryCoefWrapper, territoryCoefCustom);
+            });
+            powerCoefSelect.addEventListener('change', () => {
+                toggleCustomInput(powerCoefSelect, powerCoefWrapper, powerCoefCustom);
+            });
+            bonusMalusSelect.addEventListener('change', () => {
+                toggleCustomInput(bonusMalusSelect, bonusMalusWrapper, bonusMalusCustom);
+            });
 
-            function getNumericValue(select, customInput) {
+            // Функция получения числового значения из select + custom
+            function getNumericValue(select, inputElement) {
                 if (select.value === 'custom') {
-                    const val = customInput.value.trim();
+                    const val = inputElement.value.trim();
                     if (val === '') return NaN;
                     const num = parseFloat(val);
                     return isNaN(num) || num < 0 ? NaN : num;
+                } else {
+                    return parseFloat(select.value);
                 }
-                return parseFloat(select.value);
             }
 
+            // Валидация и расчет
             function calculate() {
                 const base = getNumericValue(baseRateSelect, baseRateCustom);
                 const territory = getNumericValue(territoryCoefSelect, territoryCoefCustom);
@@ -680,13 +428,15 @@
 
             calculateBtn.addEventListener('click', calculate);
 
-            // Инициализация
-            toggleCustomInput(baseRateSelect, baseRateCustom);
-            toggleCustomInput(territoryCoefSelect, territoryCoefCustom);
-            toggleCustomInput(powerCoefSelect, powerCoefCustom);
-            toggleCustomInput(bonusMalusSelect, bonusMalusCustom);
+            // Инициализация начального состояния
+            toggleCustomInput(baseRateSelect, baseRateWrapper, baseRateCustom);
+            toggleCustomInput(territoryCoefSelect, territoryCoefWrapper, territoryCoefCustom);
+            toggleCustomInput(powerCoefSelect, powerCoefWrapper, powerCoefCustom);
+            toggleCustomInput(bonusMalusSelect, bonusMalusWrapper, bonusMalusCustom);
+
+            // Рассчитать при загрузке
             calculate();
         })();
     </script>
 </body>
-</html>
+                                                            </html>
