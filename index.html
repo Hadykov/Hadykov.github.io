@@ -9,15 +9,43 @@
             --bg: #f5f5f7;
             --card-bg: #ffffff;
             --primary: #007aff;
+            --primary-active: #005fcc;
             --text: #1c1c1e;
             --text-secondary: #6e6e73;
             --border: #d1d1d6;
             --input-bg: #ffffff;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-btn: 0 4px 12px rgba(0, 122, 255, 0.25);
+            --result-bg: #f2f2f7;
+            --static-bg: #f2f2f7;
             --radius: 16px;
             --font-large: 1.2rem;
             --font-medium: 1rem;
             --font-small: 0.9rem;
+            --transition-speed: 0.3s;
+            --select-chevron: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%236e6e73" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+            --heading-color: #000;
+        }
+
+        /* Тёмная тема */
+        :root.dark,
+        @media (prefers-color-scheme: dark) {
+            :root:not(.light) {
+                --bg: #000000;
+                --card-bg: #1c1c1e;
+                --primary: #0a84ff;
+                --primary-active: #0066d6;
+                --text: #ffffff;
+                --text-secondary: #98989d;
+                --border: #3a3a3c;
+                --input-bg: #2c2c2e;
+                --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+                --shadow-btn: 0 4px 12px rgba(10, 132, 255, 0.35);
+                --result-bg: #2c2c2e;
+                --static-bg: #2c2c2e;
+                --select-chevron: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2398989d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+                --heading-color: #ffffff;
+            }
         }
 
         * {
@@ -37,6 +65,7 @@
             padding: 20px 16px;
             color: var(--text);
             -webkit-font-smoothing: antialiased;
+            transition: background var(--transition-speed) ease, color var(--transition-speed) ease;
         }
 
         .calculator {
@@ -44,20 +73,91 @@
             max-width: 420px;
             background: var(--card-bg);
             border-radius: 28px;
-            padding: 28px 20px 24px;
+            padding: 24px 20px 24px;
             box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
-            gap: 22px;
+            gap: 20px;
+            transition: background var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            position: relative;
+        }
+
+        /* Шапка с заголовком и переключателем темы */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
         }
 
         h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 4px;
+            font-size: 1.7rem;
+            font-weight: 620;
             letter-spacing: -0.3px;
-            color: #000;
+            color: var(--heading-color);
+            transition: color var(--transition-speed) ease;
+            margin: 0;
+            flex: 1;
+        }
+
+        /* Кнопка переключения темы */
+        .theme-toggle {
+            background: var(--input-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: all var(--transition-speed) ease;
+            flex-shrink: 0;
+            color: var(--text);
+            line-height: 1;
+            padding: 0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .theme-toggle:active {
+            transform: scale(0.93);
+            background: var(--border);
+        }
+        .theme-toggle .icon-sun,
+        .theme-toggle .icon-moon {
+            transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease;
+            position: absolute;
+        }
+        .theme-toggle .icon-sun {
+            opacity: 0;
+            transform: scale(0.6);
+        }
+        .theme-toggle .icon-moon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        /* В тёмной теме показываем солнце */
+        :root.dark .theme-toggle .icon-sun,
+        @media (prefers-color-scheme: dark) {
+            :root:not(.light) .theme-toggle .icon-sun {
+                opacity: 1;
+                transform: scale(1);
+            }
+            :root:not(.light) .theme-toggle .icon-moon {
+                opacity: 0;
+                transform: scale(0.6);
+            }
+        }
+        /* В светлой теме показываем луну (уже по умолчанию) */
+        :root.light .theme-toggle .icon-sun {
+            opacity: 0;
+            transform: scale(0.6);
+        }
+        :root.light .theme-toggle .icon-moon {
+            opacity: 1;
+            transform: scale(1);
         }
 
         .field-group {
@@ -72,6 +172,7 @@
             color: var(--text-secondary);
             letter-spacing: -0.2px;
             padding-left: 4px;
+            transition: color var(--transition-speed) ease;
         }
 
         .input-row {
@@ -92,17 +193,18 @@
             appearance: none;
             -webkit-appearance: none;
             font-family: inherit;
-            transition: border-color 0.15s;
+            transition: all var(--transition-speed) ease;
             outline: none;
             letter-spacing: -0.2px;
         }
 
         select {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%236e6e73" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+            background-image: var(--select-chevron);
             background-repeat: no-repeat;
             background-position: right 14px center;
             background-size: 18px;
             padding-right: 40px;
+            cursor: pointer;
         }
 
         input {
@@ -114,6 +216,20 @@
         input[type="number"]::-webkit-inner-spin-button {
             opacity: 1;
             height: 32px;
+        }
+
+        select:focus,
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+        }
+        :root.dark select:focus,
+        :root.dark input:focus,
+        @media (prefers-color-scheme: dark) {
+            :root:not(.light) select:focus,
+            :root:not(.light) input:focus {
+                box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.25);
+            }
         }
 
         .custom-input {
@@ -128,13 +244,14 @@
         .static-value {
             font-size: var(--font-large);
             font-weight: 500;
-            background: #f2f2f7;
+            background: var(--static-bg);
             padding: 14px 16px;
             border-radius: 12px;
-            color: #1c1c1e;
+            color: var(--text);
             width: 100%;
             display: flex;
             align-items: center;
+            transition: background var(--transition-speed) ease, color var(--transition-speed) ease;
         }
 
         .btn-calculate {
@@ -146,39 +263,42 @@
             font-size: 1.25rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.1s;
+            transition: all 0.15s ease;
             text-align: center;
             width: 100%;
             letter-spacing: -0.2px;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
-            margin-top: 8px;
+            box-shadow: var(--shadow-btn);
+            margin-top: 4px;
         }
 
         .btn-calculate:active {
-            background: #005fcc;
+            background: var(--primary-active);
             transform: scale(0.98);
         }
 
         .result-card {
-            background: #f2f2f7;
+            background: var(--result-bg);
             border-radius: 16px;
             padding: 20px;
             text-align: center;
-            margin-top: 6px;
+            margin-top: 2px;
+            transition: background var(--transition-speed) ease;
         }
 
         .result-label {
             font-size: var(--font-small);
             color: var(--text-secondary);
             margin-bottom: 4px;
+            transition: color var(--transition-speed) ease;
         }
 
         .result-value {
             font-size: 2.6rem;
             font-weight: 700;
             letter-spacing: -0.5px;
-            color: #000;
+            color: var(--text);
             word-break: break-word;
+            transition: color var(--transition-speed) ease;
         }
 
         .error-message {
@@ -188,18 +308,31 @@
             padding-left: 4px;
             display: none;
         }
+        :root.dark .error-message,
+        @media (prefers-color-scheme: dark) {
+            :root:not(.light) .error-message {
+                color: #ff453a;
+            }
+        }
 
         .error-message.show {
             display: block;
         }
 
-        @media (max-width: 380px) {
+        /* Адаптивность */
+        @media (max-width: 420px) {
             .calculator {
-                padding: 20px 14px 18px;
+                padding: 20px 16px 20px;
                 gap: 16px;
+                border-radius: 24px;
             }
             h1 {
-                font-size: 1.6rem;
+                font-size: 1.5rem;
+            }
+            .theme-toggle {
+                width: 38px;
+                height: 38px;
+                font-size: 1.2rem;
             }
             select,
             input,
@@ -207,19 +340,110 @@
                 font-size: 1rem;
                 padding: 12px 14px;
             }
+            select {
+                padding-right: 36px;
+                background-position: right 10px center;
+                background-size: 16px;
+            }
             .btn-calculate {
                 padding: 16px;
                 font-size: 1.15rem;
+                border-radius: 12px;
             }
             .result-value {
                 font-size: 2.2rem;
+            }
+            .result-card {
+                padding: 16px;
+                border-radius: 14px;
+            }
+        }
+
+        @media (max-width: 340px) {
+            body {
+                padding: 12px 8px;
+            }
+            .calculator {
+                padding: 16px 12px 16px;
+                gap: 12px;
+                border-radius: 20px;
+            }
+            h1 {
+                font-size: 1.3rem;
+            }
+            .theme-toggle {
+                width: 34px;
+                height: 34px;
+                font-size: 1rem;
+            }
+            select,
+            input,
+            .static-value {
+                font-size: 0.9rem;
+                padding: 10px 12px;
+            }
+            select {
+                padding-right: 30px;
+                background-position: right 8px center;
+                background-size: 14px;
+            }
+            .btn-calculate {
+                padding: 14px;
+                font-size: 1rem;
+                border-radius: 10px;
+            }
+            .result-value {
+                font-size: 1.8rem;
+            }
+            label {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .calculator {
+                padding: 32px 28px 28px;
+                gap: 24px;
+                border-radius: 32px;
+                max-width: 460px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .theme-toggle {
+                width: 46px;
+                height: 46px;
+                font-size: 1.4rem;
+            }
+            select,
+            input,
+            .static-value {
+                font-size: 1.25rem;
+                padding: 16px 18px;
+            }
+            select {
+                padding-right: 44px;
+            }
+            .btn-calculate {
+                padding: 20px;
+                font-size: 1.35rem;
+                border-radius: 16px;
+            }
+            .result-value {
+                font-size: 3rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <h1>📋 Калькулятор</h1>
+        <div class="header">
+            <h1>📋 Калькулятор</h1>
+            <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                <span class="icon-sun">☀️</span>
+                <span class="icon-moon">🌙</span>
+            </button>
+        </div>
 
         <!-- Базовая ставка -->
         <div class="field-group">
@@ -308,7 +532,66 @@
 
     <script>
         (function() {
-            // Получаем элементы
+            // --- Работа с темой ---
+            const html = document.documentElement;
+            const themeToggle = document.getElementById('theme-toggle') || document.getElementById('themeToggle');
+
+            // Применение темы
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    html.classList.add('dark');
+                    html.classList.remove('light');
+                } else if (theme === 'light') {
+                    html.classList.add('light');
+                    html.classList.remove('dark');
+                } else {
+                    // Авто: удаляем оба класса, полагаемся на системные настройки через media query
+                    html.classList.remove('dark', 'light');
+                }
+            }
+
+            // Получение сохранённой темы
+            function getSavedTheme() {
+                return localStorage.getItem('calculator-theme') || 'auto';
+            }
+
+            // Сохранение темы
+            function saveTheme(theme) {
+                localStorage.setItem('calculator-theme', theme);
+            }
+
+            // Инициализация темы при загрузке
+            const savedTheme = getSavedTheme();
+            applyTheme(savedTheme);
+
+            // Обработчик кнопки переключения темы
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const currentTheme = getSavedTheme();
+                    let newTheme;
+                    if (currentTheme === 'dark') {
+                        newTheme = 'light';
+                    } else if (currentTheme === 'light') {
+                        newTheme = 'auto';
+                    } else {
+                        // Если сейчас авто, определяем, какая тема активна визуально
+                        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                        newTheme = isDark ? 'light' : 'dark';
+                    }
+                    saveTheme(newTheme);
+                    applyTheme(newTheme);
+                });
+            }
+
+            // Отслеживание системных изменений темы, когда выбрано "auto"
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                if (getSavedTheme() === 'auto') {
+                    // Просто позволяем CSS media query сработать — классы не трогаем
+                    // Ничего не делаем, стили обновятся автоматически
+                }
+            });
+
+            // --- Логика калькулятора ---
             const baseRateSelect = document.getElementById('baseRateSelect');
             const baseRateCustom = document.getElementById('baseRateCustom');
             const territoryCoefSelect = document.getElementById('territoryCoefSelect');
@@ -323,7 +606,6 @@
             const resultCard = document.getElementById('resultCard');
             const resultValue = document.getElementById('resultValue');
 
-            // Функция переключения видимости кастомного поля
             function toggleCustomInput(selectElement, customInput) {
                 if (selectElement.value === 'custom') {
                     customInput.classList.add('active');
@@ -334,35 +616,22 @@
                 }
             }
 
-            // Слушатели изменений select'ов
-            baseRateSelect.addEventListener('change', () => {
-                toggleCustomInput(baseRateSelect, baseRateCustom);
-            });
-            territoryCoefSelect.addEventListener('change', () => {
-                toggleCustomInput(territoryCoefSelect, territoryCoefCustom);
-            });
-            powerCoefSelect.addEventListener('change', () => {
-                toggleCustomInput(powerCoefSelect, powerCoefCustom);
-            });
-            bonusMalusSelect.addEventListener('change', () => {
-                toggleCustomInput(bonusMalusSelect, bonusMalusCustom);
-            });
+            baseRateSelect.addEventListener('change', () => toggleCustomInput(baseRateSelect, baseRateCustom));
+            territoryCoefSelect.addEventListener('change', () => toggleCustomInput(territoryCoefSelect, territoryCoefCustom));
+            powerCoefSelect.addEventListener('change', () => toggleCustomInput(powerCoefSelect, powerCoefCustom));
+            bonusMalusSelect.addEventListener('change', () => toggleCustomInput(bonusMalusSelect, bonusMalusCustom));
 
-            // Функция получения числового значения из select + custom
             function getNumericValue(select, customInput) {
                 if (select.value === 'custom') {
                     const val = customInput.value.trim();
                     if (val === '') return NaN;
                     const num = parseFloat(val);
                     return isNaN(num) || num < 0 ? NaN : num;
-                } else {
-                    return parseFloat(select.value);
                 }
+                return parseFloat(select.value);
             }
 
-            // Валидация и расчет
             function calculate() {
-                // Сбор всех значений
                 const base = getNumericValue(baseRateSelect, baseRateCustom);
                 const territory = getNumericValue(territoryCoefSelect, territoryCoefCustom);
                 const power = getNumericValue(powerCoefSelect, powerCoefCustom);
@@ -370,7 +639,6 @@
                 const ageExp = ageExpRaw === '' ? NaN : parseFloat(ageExpRaw);
                 const bonusMalus = getNumericValue(bonusMalusSelect, bonusMalusCustom);
 
-                // Проверка на валидность
                 if (isNaN(base) || base < 0) {
                     showError('Введите корректную базовую ставку');
                     return;
@@ -392,16 +660,10 @@
                     return;
                 }
 
-                // Скрыть ошибку, если была
                 hideError();
 
-                // Расчёт
                 const result = base * territory * power * ageExp * bonusMalus;
-
-                // Округление до двух знаков после запятой, если нужно
                 const formattedResult = result % 1 === 0 ? result.toFixed(0) : result.toFixed(2);
-
-                // Отображение
                 resultValue.textContent = Number(formattedResult).toLocaleString('ru-RU');
                 resultCard.style.display = 'block';
             }
@@ -416,25 +678,13 @@
                 errorMessage.classList.remove('show');
             }
 
-            // Обработчик кнопки
             calculateBtn.addEventListener('click', calculate);
 
-            // Дополнительно: при изменении любого параметра тоже можно пересчитывать (опционально)
-            // Но лучше оставить явное нажатие кнопки, чтобы не мелькало.
-            // Для удобства можно добавить "живой" пересчет при изменении, если раскомментировать:
-            /*
-            const allInputs = document.querySelectorAll('select, input');
-            allInputs.forEach(el => el.addEventListener('input', calculate));
-            allInputs.forEach(el => el.addEventListener('change', calculate));
-            */
-
-            // Инициализация начального состояния: скрываем кастомные поля, т.к. по умолчанию выбраны готовые значения
+            // Инициализация
             toggleCustomInput(baseRateSelect, baseRateCustom);
             toggleCustomInput(territoryCoefSelect, territoryCoefCustom);
             toggleCustomInput(powerCoefSelect, powerCoefCustom);
             toggleCustomInput(bonusMalusSelect, bonusMalusCustom);
-
-            // Рассчитать при загрузке для демонстрации (по умолчанию)
             calculate();
         })();
     </script>
