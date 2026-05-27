@@ -12,6 +12,7 @@
             --primary-active: #0066d6;
             --text: #ffffff;
             --text-secondary: #98989d;
+            --text-muted: #6d6d72;  /* ещё более тусклый серый */
             --border: #3a3a3c;
             --input-bg: #3a3a3c;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -188,6 +189,65 @@
             box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.25);
         }
 
+        /* Блок КВ – теперь маленький и тусклый */
+        .kv-section {
+            margin-top: 8px;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;          /* уменьшенный размер */
+            color: var(--text-secondary); /* серый цвет */
+            cursor: pointer;
+            user-select: none;
+            padding-left: 4px;
+            font-weight: 500;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--text-secondary); /* тусклый акцент */
+            transform: scale(0.9);
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-label input[type="checkbox"]:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .checkbox-label span {
+            font-weight: 500;
+        }
+
+        .kv-controls {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .kv-result {
+            background: var(--result-bg);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.9rem;            /* уменьшенный шрифт */
+            font-weight: 500;
+            text-align: center;
+            color: var(--text-secondary);  /* серый цвет */
+        }
+
+        .kv-result strong {
+            color: var(--text-secondary);  /* и значение тоже серым, не выделяется */
+            font-weight: 600;
+        }
+
         .footer {
             text-align: center;
             margin-top: 20px;
@@ -317,6 +377,35 @@
             <div class="result-label">Итоговая стоимость</div>
             <div class="result-value" id="resultValue">0</div>
         </div>
+
+        <!-- Блок КВ (комиссионное вознаграждение) -->
+        <div class="kv-section" id="kvSection">
+            <label class="checkbox-label">
+                <input type="checkbox" id="showKvCheckbox" disabled>
+                <span>Показать КВ</span>
+            </label>
+            <div class="kv-controls" id="kvControls" style="display: none;">
+                <div class="field-group">
+                    <label for="kvPercentSelect">Процент КВ</label>
+                    <select id="kvPercentSelect">
+                        <option value="5">5%</option>
+                        <option value="7">7%</option>
+                        <option value="10" selected>10%</option>
+                        <option value="15">15%</option>
+                        <option value="20">20%</option>
+                        <option value="25">25%</option>
+                        <option value="30">30%</option>
+                        <option value="custom">Другое...</option>
+                    </select>
+                    <div class="custom-input-wrapper" id="kvPercentWrapper">
+                        <input type="number" id="kvPercentCustom" placeholder="Введите процент" step="any" min="0">
+                    </div>
+                </div>
+                <div class="kv-result" id="kvResult" style="display: none;">
+                    <span><strong id="kvValue">0</strong></span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer class="footer">
@@ -325,6 +414,7 @@
 
     <script>
         (function() {
+            // Основные элементы
             const baseRateSelect = document.getElementById('baseRateSelect');
             const baseRateWrapper = document.getElementById('baseRateWrapper');
             const baseRateCustom = document.getElementById('baseRateCustom');
@@ -347,6 +437,19 @@
             const resultCard = document.getElementById('resultCard');
             const resultValue = document.getElementById('resultValue');
 
+            // Элементы КВ
+            const showKvCheckbox = document.getElementById('showKvCheckbox');
+            const kvControls = document.getElementById('kvControls');
+            const kvPercentSelect = document.getElementById('kvPercentSelect');
+            const kvPercentWrapper = document.getElementById('kvPercentWrapper');
+            const kvPercentCustom = document.getElementById('kvPercentCustom');
+            const kvResult = document.getElementById('kvResult');
+            const kvValue = document.getElementById('kvValue');
+
+            // Переменная для хранения последнего итогового результата
+            let lastTotal = null;
+
+            // Управление кастомными инпутами для основных полей
             function toggleCustomInput(select, wrapper, input) {
                 if (select.value === 'custom') {
                     wrapper.classList.add('active');
@@ -357,28 +460,18 @@
                 }
             }
 
-            baseRateSelect.addEventListener('change', () => toggleCustomInput(baseRateSelect, baseRateWrapper, baseRateCustom));
-            territoryCoefSelect.addEventListener('change', () => toggleCustomInput(territoryCoefSelect, territoryCoefWrapper, territoryCoefCustom));
-            powerCoefSelect.addEventListener('change', () => toggleCustomInput(powerCoefSelect, powerCoefWrapper, powerCoefCustom));
-            bonusMalusSelect.addEventListener('change', () => toggleCustomInput(bonusMalusSelect, bonusMalusWrapper, bonusMalusCustom));
-
-            function updateConditionalFields() {
-                const val = restrictionSelect.value;
-                if (val === '1') {
-                    bonusMalusGroup.classList.remove('hidden');
-                    ageExperienceGroup.classList.remove('hidden');
-                } else if (val === '3.16') {
-                    bonusMalusGroup.classList.add('hidden');
-                    ageExperienceGroup.classList.add('hidden');
-                } else if (val === '1.97') {
-                    bonusMalusGroup.classList.remove('hidden');
-                    ageExperienceGroup.classList.add('hidden');
+            // Управление кастомным инпутом для процента КВ
+            function toggleKvCustomInput() {
+                if (kvPercentSelect.value === 'custom') {
+                    kvPercentWrapper.classList.add('active');
+                    kvPercentCustom.focus();
+                } else {
+                    kvPercentWrapper.classList.remove('active');
+                    kvPercentCustom.value = '';
                 }
-                calculate();
             }
 
-            restrictionSelect.addEventListener('change', updateConditionalFields);
-
+            // Получение числового значения из select/input
             function getNumericValue(select, input) {
                 if (select.value === 'custom') {
                     const val = input.value.trim();
@@ -389,6 +482,35 @@
                 return parseFloat(select.value);
             }
 
+            // Получение процента КВ
+            function getKvPercent() {
+                if (kvPercentSelect.value === 'custom') {
+                    const val = kvPercentCustom.value.trim();
+                    if (val === '') return NaN;
+                    const num = parseFloat(val);
+                    return isNaN(num) || num < 0 ? NaN : num;
+                }
+                return parseFloat(kvPercentSelect.value);
+            }
+
+            // Обновление отображения КВ
+            function updateKv() {
+                if (!showKvCheckbox.checked || lastTotal === null) {
+                    kvResult.style.display = 'none';
+                    return;
+                }
+                const percent = getKvPercent();
+                if (isNaN(percent)) {
+                    kvResult.style.display = 'none';
+                    return;
+                }
+                const kv = (lastTotal * percent) / 100;
+                const formattedKv = kv % 1 === 0 ? kv.toFixed(0) : kv.toFixed(2);
+                kvValue.textContent = Number(formattedKv).toLocaleString('ru-RU');
+                kvResult.style.display = 'block';
+            }
+
+            // Основной расчет
             function calculate() {
                 const base = getNumericValue(baseRateSelect, baseRateCustom);
                 const territory = getNumericValue(territoryCoefSelect, territoryCoefCustom);
@@ -427,20 +549,77 @@
 
                 hideError();
                 const result = base * territory * power * period * restriction * bonusMalus * ageExp;
+                lastTotal = result;
                 const formatted = result % 1 === 0 ? result.toFixed(0) : result.toFixed(2);
                 resultValue.textContent = Number(formatted).toLocaleString('ru-RU');
                 resultCard.style.display = 'block';
+
+                // Активируем чекбокс КВ после успешного расчета
+                showKvCheckbox.disabled = false;
+
+                // Если чекбокс включен, обновим КВ
+                if (showKvCheckbox.checked) {
+                    updateKv();
+                }
             }
 
             function showError(msg) {
                 errorMessage.textContent = msg;
                 errorMessage.classList.add('show');
                 resultCard.style.display = 'none';
+                // При ошибке сбрасываем lastTotal и деактивируем КВ
+                lastTotal = null;
+                showKvCheckbox.disabled = true;
+                showKvCheckbox.checked = false;
+                kvControls.style.display = 'none';
+                kvResult.style.display = 'none';
             }
 
             function hideError() {
                 errorMessage.classList.remove('show');
             }
+
+            // Обработчики событий для полей
+            baseRateSelect.addEventListener('change', () => toggleCustomInput(baseRateSelect, baseRateWrapper, baseRateCustom));
+            territoryCoefSelect.addEventListener('change', () => toggleCustomInput(territoryCoefSelect, territoryCoefWrapper, territoryCoefCustom));
+            powerCoefSelect.addEventListener('change', () => toggleCustomInput(powerCoefSelect, powerCoefWrapper, powerCoefCustom));
+            bonusMalusSelect.addEventListener('change', () => toggleCustomInput(bonusMalusSelect, bonusMalusWrapper, bonusMalusCustom));
+
+            function updateConditionalFields() {
+                const val = restrictionSelect.value;
+                if (val === '1') {
+                    bonusMalusGroup.classList.remove('hidden');
+                    ageExperienceGroup.classList.remove('hidden');
+                } else if (val === '3.16') {
+                    bonusMalusGroup.classList.add('hidden');
+                    ageExperienceGroup.classList.add('hidden');
+                } else if (val === '1.97') {
+                    bonusMalusGroup.classList.remove('hidden');
+                    ageExperienceGroup.classList.add('hidden');
+                }
+                calculate();
+            }
+
+            restrictionSelect.addEventListener('change', updateConditionalFields);
+
+            // Обработчики для КВ
+            showKvCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    kvControls.style.display = 'flex';
+                    toggleKvCustomInput();
+                    updateKv();
+                } else {
+                    kvControls.style.display = 'none';
+                    kvResult.style.display = 'none';
+                }
+            });
+
+            kvPercentSelect.addEventListener('change', function() {
+                toggleKvCustomInput();
+                updateKv();
+            });
+
+            kvPercentCustom.addEventListener('input', updateKv);
 
             calculateBtn.addEventListener('click', calculate);
 
@@ -449,6 +628,7 @@
             toggleCustomInput(territoryCoefSelect, territoryCoefWrapper, territoryCoefCustom);
             toggleCustomInput(powerCoefSelect, powerCoefWrapper, powerCoefCustom);
             toggleCustomInput(bonusMalusSelect, bonusMalusWrapper, bonusMalusCustom);
+            toggleKvCustomInput();
             updateConditionalFields();
         })();
     </script>
