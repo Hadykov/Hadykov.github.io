@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Калькулятор ин.учёта</title>
+    <title>Калькулятор расчёта</title>
     <style>
         :root {
             --bg: #1c1c1e;
@@ -131,6 +131,15 @@
             width: 100%;
         }
 
+        .conditional-group {
+            transition: opacity 0.2s ease, max-height 0.2s ease;
+            overflow: hidden;
+        }
+
+        .conditional-group.hidden {
+            display: none;
+        }
+
         .btn-calculate {
             background: var(--primary);
             color: white;
@@ -193,7 +202,6 @@
             box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.25);
         }
 
-        /* Футер */
         .footer {
             text-align: center;
             margin-top: 20px;
@@ -246,7 +254,7 @@
     <div class="calculator">
         <h1>📋 Калькулятор</h1>
 
-        <!-- Базовая ставка -->
+        <!-- 1. Базовая ставка -->
         <div class="field-group">
             <label for="baseRateSelect">Базовая ставка</label>
             <select id="baseRateSelect">
@@ -261,7 +269,7 @@
             </div>
         </div>
 
-        <!-- Коэффициент территории -->
+        <!-- 2. Коэффициент территории -->
         <div class="field-group">
             <label for="territoryCoefSelect">Коэффициент территории</label>
             <select id="territoryCoefSelect">
@@ -275,7 +283,7 @@
             </div>
         </div>
 
-        <!-- Коэффициент мощности -->
+        <!-- 3. Коэффициент мощности -->
         <div class="field-group">
             <label for="powerCoefSelect">Коэффициент мощности</label>
             <select id="powerCoefSelect">
@@ -290,14 +298,24 @@
             </div>
         </div>
 
-        <!-- Коэффициент возраст/стаж -->
+        <!-- 4. Коэффициент периода -->
         <div class="field-group">
-            <label for="ageExperienceCoef">Коэффициент возраст / стаж</label>
-            <input type="number" id="ageExperienceCoef" value="1" step="any" min="0" placeholder="1">
+            <label for="periodCoef">Коэффициент периода</label>
+            <input type="number" id="periodCoef" value="1" step="any" min="0" placeholder="1">
         </div>
 
-        <!-- Коэффициент бонус-малус -->
+        <!-- 5. Коэффициент ограничения -->
         <div class="field-group">
+            <label for="restrictionSelect">Коэффициент ограничения</label>
+            <select id="restrictionSelect">
+                <option value="1" selected>1 (Ограниченный)</option>
+                <option value="3.16">3.16 (неограниченный)</option>
+                <option value="1.97">1.97 (неограниченный юр.лицо)</option>
+            </select>
+        </div>
+
+        <!-- 6. Коэффициент бонус-малус (КБМ) – отдельный блок -->
+        <div class="field-group conditional-group" id="bonusMalusGroup">
             <label for="bonusMalusSelect">Коэффициент бонус-малус (КБМ)</label>
             <select id="bonusMalusSelect">
                 <option value="0.46">0.46</option>
@@ -322,14 +340,10 @@
             </div>
         </div>
 
-        <!-- Коэффициент ограничения -->
-        <div class="field-group">
-            <label for="restrictionSelect">Коэффициент ограничения</label>
-            <select id="restrictionSelect">
-                <option value="1" selected>1 (Ограниченный)</option>
-                <option value="3.16">3.16 (Неограниченный)</option>
-                <option value="1.97">1.97 (Неограниченный Юр.лицо)</option>
-            </select>
+        <!-- 7. Коэффициент возраст/стаж – отдельный блок -->
+        <div class="field-group conditional-group" id="ageExperienceGroup">
+            <label for="ageExperienceCoef">Коэффициент возраст / стаж</label>
+            <input type="number" id="ageExperienceCoef" value="1" step="any" min="0" placeholder="1">
         </div>
 
         <button class="btn-calculate" id="calculateBtn">Рассчитать</button>
@@ -343,7 +357,7 @@
     </div>
 
     <footer class="footer">
-        По вопросам обращаться в <a href="https://t.me/hadykov" target="_blank" rel="noopener noreferrer">Telegram</a>
+        По вопросам обращаться в <a href="https://t.me/hadykov" target="_blank" rel="noopener noreferrer">Telegram @hadykov</a>
     </footer>
 
     <script>
@@ -357,11 +371,14 @@
             const powerCoefSelect = document.getElementById('powerCoefSelect');
             const powerCoefWrapper = document.getElementById('powerCoefWrapper');
             const powerCoefCustom = document.getElementById('powerCoefCustom');
-            const ageExperienceCoef = document.getElementById('ageExperienceCoef');
+            const periodCoef = document.getElementById('periodCoef');
+            const restrictionSelect = document.getElementById('restrictionSelect');
+            const bonusMalusGroup = document.getElementById('bonusMalusGroup');
             const bonusMalusSelect = document.getElementById('bonusMalusSelect');
             const bonusMalusWrapper = document.getElementById('bonusMalusWrapper');
             const bonusMalusCustom = document.getElementById('bonusMalusCustom');
-            const restrictionSelect = document.getElementById('restrictionSelect');
+            const ageExperienceGroup = document.getElementById('ageExperienceGroup');
+            const ageExperienceCoef = document.getElementById('ageExperienceCoef');
             const calculateBtn = document.getElementById('calculateBtn');
             const errorMessage = document.getElementById('errorMessage');
             const resultCard = document.getElementById('resultCard');
@@ -382,6 +399,29 @@
             powerCoefSelect.addEventListener('change', () => toggleCustomInput(powerCoefSelect, powerCoefWrapper, powerCoefCustom));
             bonusMalusSelect.addEventListener('change', () => toggleCustomInput(bonusMalusSelect, bonusMalusWrapper, bonusMalusCustom));
 
+            // Управление видимостью групп в зависимости от ограничения
+            function updateConditionalFields() {
+                const restrictionValue = restrictionSelect.value;
+                // Ограниченный (1) – оба видны
+                if (restrictionValue === '1') {
+                    bonusMalusGroup.classList.remove('hidden');
+                    ageExperienceGroup.classList.remove('hidden');
+                }
+                // Неограниченный (3.16) – оба скрыты
+                else if (restrictionValue === '3.16') {
+                    bonusMalusGroup.classList.add('hidden');
+                    ageExperienceGroup.classList.add('hidden');
+                }
+                // Неограниченный юр.лицо (1.97) – КБМ виден, возраст скрыт
+                else if (restrictionValue === '1.97') {
+                    bonusMalusGroup.classList.remove('hidden');
+                    ageExperienceGroup.classList.add('hidden');
+                }
+                calculate();
+            }
+
+            restrictionSelect.addEventListener('change', updateConditionalFields);
+
             function getNumericValue(select, inputElement) {
                 if (select.value === 'custom') {
                     const val = inputElement.value.trim();
@@ -396,11 +436,31 @@
                 const base = getNumericValue(baseRateSelect, baseRateCustom);
                 const territory = getNumericValue(territoryCoefSelect, territoryCoefCustom);
                 const power = getNumericValue(powerCoefSelect, powerCoefCustom);
-                const ageExpRaw = ageExperienceCoef.value.trim();
-                const ageExp = ageExpRaw === '' ? NaN : parseFloat(ageExpRaw);
-                const bonusMalus = getNumericValue(bonusMalusSelect, bonusMalusCustom);
+                const periodRaw = periodCoef.value.trim();
+                const period = periodRaw === '' ? NaN : parseFloat(periodRaw);
                 const restriction = parseFloat(restrictionSelect.value);
 
+                // Определяем КБМ и возраст/стаж в зависимости от видимости и значения ограничения
+                let bonusMalus = 1;
+                let ageExp = 1;
+
+                const restrictionValue = restrictionSelect.value;
+                if (restrictionValue === '1') {
+                    // Ограниченный – используем видимые поля
+                    bonusMalus = getNumericValue(bonusMalusSelect, bonusMalusCustom);
+                    const ageExpRaw = ageExperienceCoef.value.trim();
+                    ageExp = ageExpRaw === '' ? NaN : parseFloat(ageExpRaw);
+                } else if (restrictionValue === '3.16') {
+                    // Неограниченный – скрыты оба, используем 1.17 и 1
+                    bonusMalus = 1.17;
+                    ageExp = 1;
+                } else if (restrictionValue === '1.97') {
+                    // Неограниченный юр.лицо – КБМ видим, возраст скрыт =1
+                    bonusMalus = getNumericValue(bonusMalusSelect, bonusMalusCustom);
+                    ageExp = 1;
+                }
+
+                // Валидация
                 if (isNaN(base) || base < 0) {
                     showError('Введите корректную базовую ставку');
                     return;
@@ -413,22 +473,26 @@
                     showError('Введите корректный коэффициент мощности');
                     return;
                 }
-                if (isNaN(ageExp) || ageExp < 0) {
-                    showError('Введите корректный коэффициент возраст/стаж');
-                    return;
-                }
-                if (isNaN(bonusMalus) || bonusMalus < 0) {
-                    showError('Введите корректный коэффициент бонус-малус');
+                if (isNaN(period) || period < 0) {
+                    showError('Введите корректный коэффициент периода');
                     return;
                 }
                 if (isNaN(restriction) || restriction <= 0) {
                     showError('Некорректный коэффициент ограничения');
                     return;
                 }
+                if (!bonusMalusGroup.classList.contains('hidden') && (isNaN(bonusMalus) || bonusMalus < 0)) {
+                    showError('Введите корректный коэффициент бонус-малус');
+                    return;
+                }
+                if (!ageExperienceGroup.classList.contains('hidden') && (isNaN(ageExp) || ageExp < 0)) {
+                    showError('Введите корректный коэффициент возраст/стаж');
+                    return;
+                }
 
                 hideError();
 
-                const result = base * territory * power * ageExp * bonusMalus * restriction;
+                const result = base * territory * power * period * restriction * bonusMalus * ageExp;
                 const formattedResult = result % 1 === 0 ? result.toFixed(0) : result.toFixed(2);
                 resultValue.textContent = Number(formattedResult).toLocaleString('ru-RU');
                 resultCard.style.display = 'block';
@@ -446,12 +510,12 @@
 
             calculateBtn.addEventListener('click', calculate);
 
+            // Инициализация
             toggleCustomInput(baseRateSelect, baseRateWrapper, baseRateCustom);
             toggleCustomInput(territoryCoefSelect, territoryCoefWrapper, territoryCoefCustom);
             toggleCustomInput(powerCoefSelect, powerCoefWrapper, powerCoefCustom);
             toggleCustomInput(bonusMalusSelect, bonusMalusWrapper, bonusMalusCustom);
-
-            calculate();
+            updateConditionalFields();
         })();
     </script>
 </body>
