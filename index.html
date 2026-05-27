@@ -6,7 +6,6 @@
     <title>Калькулятор расчёта</title>
     <style>
         :root {
-            /* Тёмная тема по умолчанию */
             --bg: #1c1c1e;
             --card-bg: #2c2c2e;
             --primary: #0a84ff;
@@ -37,6 +36,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: var(--bg);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -81,7 +81,6 @@
             padding-left: 4px;
         }
 
-        /* Убрали input-row, теперь поле ввода будет отдельно */
         select,
         input {
             font-size: var(--font-large);
@@ -119,7 +118,6 @@
             height: 32px;
         }
 
-        /* Обёртка для кастомного поля ввода */
         .custom-input-wrapper {
             display: none;
             margin-top: 6px;
@@ -131,18 +129,6 @@
 
         .custom-input-wrapper input {
             width: 100%;
-        }
-
-        .static-value {
-            font-size: var(--font-large);
-            font-weight: 500;
-            background: var(--static-bg);
-            padding: 14px 16px;
-            border-radius: 12px;
-            color: var(--text);
-            width: 100%;
-            display: flex;
-            align-items: center;
         }
 
         .btn-calculate {
@@ -207,6 +193,28 @@
             box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.25);
         }
 
+        /* Футер */
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding: 0 16px;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .footer a:hover {
+            opacity: 0.8;
+        }
+
         @media (max-width: 380px) {
             .calculator {
                 padding: 20px 14px 18px;
@@ -216,8 +224,7 @@
                 font-size: 1.6rem;
             }
             select,
-            input,
-            .static-value {
+            input {
                 font-size: 1rem;
                 padding: 12px 14px;
             }
@@ -227,6 +234,10 @@
             }
             .result-value {
                 font-size: 2.2rem;
+            }
+            .footer {
+                font-size: 0.8rem;
+                margin-top: 16px;
             }
         }
     </style>
@@ -239,6 +250,7 @@
         <div class="field-group">
             <label for="baseRateSelect">Базовая ставка</label>
             <select id="baseRateSelect">
+                <option value="2500">2500</option>
                 <option value="5500" selected>5500</option>
                 <option value="6050">6050</option>
                 <option value="8665">8665</option>
@@ -297,8 +309,8 @@
                 <option value="0.78">0.78</option>
                 <option value="0.83">0.83</option>
                 <option value="0.91">0.91</option>
-                <option value="1" selected>1</option>
-                <option value="1.17">1.17</option>
+                <option value="1">1</option>
+                <option value="1.17" selected>1.17</option>
                 <option value="1.76">1.76</option>
                 <option value="2.25">2.25</option>
                 <option value="2.94">2.94</option>
@@ -308,6 +320,16 @@
             <div class="custom-input-wrapper" id="bonusMalusWrapper">
                 <input type="number" id="bonusMalusCustom" placeholder="Введите значение" step="any" min="0">
             </div>
+        </div>
+
+        <!-- Коэффициент ограничения -->
+        <div class="field-group">
+            <label for="restrictionSelect">Коэффициент ограничения</label>
+            <select id="restrictionSelect">
+                <option value="1" selected>1 (Ограниченный)</option>
+                <option value="3.16">3.16 (Неограниченный)</option>
+                <option value="1.97">1.97 (Неограниченный Юр.лицо)</option>
+            </select>
         </div>
 
         <button class="btn-calculate" id="calculateBtn">Рассчитать</button>
@@ -320,9 +342,12 @@
         </div>
     </div>
 
+    <footer class="footer">
+        По вопросам обращаться в <a href="https://t.me/hadykov" target="_blank" rel="noopener noreferrer">Telegram</a>
+    </footer>
+
     <script>
         (function() {
-            // Получаем элементы
             const baseRateSelect = document.getElementById('baseRateSelect');
             const baseRateWrapper = document.getElementById('baseRateWrapper');
             const baseRateCustom = document.getElementById('baseRateCustom');
@@ -336,12 +361,12 @@
             const bonusMalusSelect = document.getElementById('bonusMalusSelect');
             const bonusMalusWrapper = document.getElementById('bonusMalusWrapper');
             const bonusMalusCustom = document.getElementById('bonusMalusCustom');
+            const restrictionSelect = document.getElementById('restrictionSelect');
             const calculateBtn = document.getElementById('calculateBtn');
             const errorMessage = document.getElementById('errorMessage');
             const resultCard = document.getElementById('resultCard');
             const resultValue = document.getElementById('resultValue');
 
-            // Функция переключения видимости кастомного поля (теперь через wrapper)
             function toggleCustomInput(selectElement, wrapperElement, inputElement) {
                 if (selectElement.value === 'custom') {
                     wrapperElement.classList.add('active');
@@ -352,33 +377,21 @@
                 }
             }
 
-            // Слушатели изменений select'ов
-            baseRateSelect.addEventListener('change', () => {
-                toggleCustomInput(baseRateSelect, baseRateWrapper, baseRateCustom);
-            });
-            territoryCoefSelect.addEventListener('change', () => {
-                toggleCustomInput(territoryCoefSelect, territoryCoefWrapper, territoryCoefCustom);
-            });
-            powerCoefSelect.addEventListener('change', () => {
-                toggleCustomInput(powerCoefSelect, powerCoefWrapper, powerCoefCustom);
-            });
-            bonusMalusSelect.addEventListener('change', () => {
-                toggleCustomInput(bonusMalusSelect, bonusMalusWrapper, bonusMalusCustom);
-            });
+            baseRateSelect.addEventListener('change', () => toggleCustomInput(baseRateSelect, baseRateWrapper, baseRateCustom));
+            territoryCoefSelect.addEventListener('change', () => toggleCustomInput(territoryCoefSelect, territoryCoefWrapper, territoryCoefCustom));
+            powerCoefSelect.addEventListener('change', () => toggleCustomInput(powerCoefSelect, powerCoefWrapper, powerCoefCustom));
+            bonusMalusSelect.addEventListener('change', () => toggleCustomInput(bonusMalusSelect, bonusMalusWrapper, bonusMalusCustom));
 
-            // Функция получения числового значения из select + custom
             function getNumericValue(select, inputElement) {
                 if (select.value === 'custom') {
                     const val = inputElement.value.trim();
                     if (val === '') return NaN;
                     const num = parseFloat(val);
                     return isNaN(num) || num < 0 ? NaN : num;
-                } else {
-                    return parseFloat(select.value);
                 }
+                return parseFloat(select.value);
             }
 
-            // Валидация и расчет
             function calculate() {
                 const base = getNumericValue(baseRateSelect, baseRateCustom);
                 const territory = getNumericValue(territoryCoefSelect, territoryCoefCustom);
@@ -386,6 +399,7 @@
                 const ageExpRaw = ageExperienceCoef.value.trim();
                 const ageExp = ageExpRaw === '' ? NaN : parseFloat(ageExpRaw);
                 const bonusMalus = getNumericValue(bonusMalusSelect, bonusMalusCustom);
+                const restriction = parseFloat(restrictionSelect.value);
 
                 if (isNaN(base) || base < 0) {
                     showError('Введите корректную базовую ставку');
@@ -407,10 +421,14 @@
                     showError('Введите корректный коэффициент бонус-малус');
                     return;
                 }
+                if (isNaN(restriction) || restriction <= 0) {
+                    showError('Некорректный коэффициент ограничения');
+                    return;
+                }
 
                 hideError();
 
-                const result = base * territory * power * ageExp * bonusMalus;
+                const result = base * territory * power * ageExp * bonusMalus * restriction;
                 const formattedResult = result % 1 === 0 ? result.toFixed(0) : result.toFixed(2);
                 resultValue.textContent = Number(formattedResult).toLocaleString('ru-RU');
                 resultCard.style.display = 'block';
@@ -428,15 +446,13 @@
 
             calculateBtn.addEventListener('click', calculate);
 
-            // Инициализация начального состояния
             toggleCustomInput(baseRateSelect, baseRateWrapper, baseRateCustom);
             toggleCustomInput(territoryCoefSelect, territoryCoefWrapper, territoryCoefCustom);
             toggleCustomInput(powerCoefSelect, powerCoefWrapper, powerCoefCustom);
             toggleCustomInput(bonusMalusSelect, bonusMalusWrapper, bonusMalusCustom);
 
-            // Рассчитать при загрузке
             calculate();
         })();
     </script>
 </body>
-                                                            </html>
+</html>
