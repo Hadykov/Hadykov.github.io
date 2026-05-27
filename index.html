@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Калькулятор расчёта</title>
+    <style>
+        :root {
+            --bg: #f5f5f7;
+            --card-bg: #ffffff;
+            --primary: #007aff;
+            --text: #1c1c1e;
+            --text-secondary: #6e6e73;
+            --border: #d1d1d6;
+            --input-bg: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --radius: 16px;
+            --font-large: 1.2rem;
+            --font-medium: 1rem;
+            --font-small: 0.9rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 16px;
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .calculator {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card-bg);
+            border-radius: 28px;
+            padding: 28px 20px 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+            color: #000;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: var(--font-small);
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: -0.2px;
+            padding-left: 4px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        select,
+        input {
+            font-size: var(--font-large);
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--input-bg);
+            color: var(--text);
+            width: 100%;
+            appearance: none;
+            -webkit-appearance: none;
+            font-family: inherit;
+            transition: border-color 0.15s;
+            outline: none;
+            letter-spacing: -0.2px;
+        }
+
+        select {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%236e6e73" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 18px;
+            padding-right: 40px;
+        }
+
+        input {
+            appearance: textfield;
+            -webkit-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            opacity: 1;
+            height: 32px;
+        }
+
+        .custom-input {
+            display: none;
+            flex: 1;
+        }
+
+        .custom-input.active {
+            display: block;
+        }
+
+        .static-value {
+            font-size: var(--font-large);
+            font-weight: 500;
+            background: #f2f2f7;
+            padding: 14px 16px;
+            border-radius: 12px;
+            color: #1c1c1e;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-calculate {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 18px 20px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.1s;
+            text-align: center;
+            width: 100%;
+            letter-spacing: -0.2px;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+            margin-top: 8px;
+        }
+
+        .btn-calculate:active {
+            background: #005fcc;
+            transform: scale(0.98);
+        }
+
+        .result-card {
+            background: #f2f2f7;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        .result-label {
+            font-size: var(--font-small);
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 2.6rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #000;
+            word-break: break-word;
+        }
+
+        .error-message {
+            color: #ff3b30;
+            font-size: 0.85rem;
+            margin-top: 2px;
+            padding-left: 4px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @media (max-width: 380px) {
+            .calculator {
+                padding: 20px 14px 18px;
+                gap: 16px;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+            select,
+            input,
+            .static-value {
+                font-size: 1rem;
+                padding: 12px 14px;
+            }
+            .btn-calculate {
+                padding: 16px;
+                font-size: 1.15rem;
+            }
+            .result-value {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>📋 Калькулятор</h1>
+
+        <!-- Базовая ставка -->
+        <div class="field-group">
+            <label for="baseRateSelect">Базовая ставка</label>
+            <div class="input-row">
+                <select id="baseRateSelect">
+                    <option value="5500" selected>5500</option>
+                    <option value="6050">6050</option>
+                    <option value="8665">8665</option>
+                    <option value="custom">Другое…</option>
+                </select>
+                <input type="number" id="baseRateCustom" class="custom-input" placeholder="Введите" step="any" min="0">
+            </div>
+        </div>
+
+        <!-- Коэффициент территории -->
+        <div class="field-group">
+            <label for="territoryCoefSelect">Коэффициент территории</label>
+            <div class="input-row">
+                <select id="territoryCoefSelect">
+                    <option value="1.7" selected>1.7</option>
+                    <option value="1">1</option>
+                    <option value="0.9">0.9</option>
+                    <option value="custom">Другое…</option>
+                </select>
+                <input type="number" id="territoryCoefCustom" class="custom-input" placeholder="Введите" step="any" min="0">
+            </div>
+        </div>
+
+        <!-- Коэффициент мощности -->
+        <div class="field-group">
+            <label for="powerCoefSelect">Коэффициент мощности</label>
+            <div class="input-row">
+                <select id="powerCoefSelect">
+                    <option value="1.1">1.1</option>
+                    <option value="1.2">1.2</option>
+                    <option value="1.4">1.4</option>
+                    <option value="1.6" selected>1.6</option>
+                    <option value="custom">Другое…</option>
+                </select>
+                <input type="number" id="powerCoefCustom" class="custom-input" placeholder="Введите" step="any" min="0">
+            </div>
+        </div>
+
+        <!-- Коэффициент возраст/стаж -->
+        <div class="field-group">
+            <label for="ageExperienceCoef">Коэффициент возраст / стаж</label>
+            <input type="number" id="ageExperienceCoef" value="1" step="any" min="0" placeholder="1">
+        </div>
+
+        <!-- Коэффициент бонус-малус -->
+        <div class="field-group">
+            <label for="bonusMalusSelect">Коэффициент бонус-малус (КБМ)</label>
+            <div class="input-row">
+                <select id="bonusMalusSelect">
+                    <option value="0.46">0.46</option>
+                    <option value="0.52">0.52</option>
+                    <option value="0.57">0.57</option>
+                    <option value="0.63">0.63</option>
+                    <option value="0.68">0.68</option>
+                    <option value="0.74">0.74</option>
+                    <option value="0.78">0.78</option>
+                    <option value="0.83">0.83</option>
+                    <option value="0.91">0.91</option>
+                    <option value="1" selected>1</option>
+                    <option value="1.17">1.17</option>
+                    <option value="1.76">1.76</option>
+                    <option value="2.25">2.25</option>
+                    <option value="2.94">2.94</option>
+                    <option value="3.92">3.92</option>
+                    <option value="custom">Другое…</option>
+                </select>
+                <input type="number" id="bonusMalusCustom" class="custom-input" placeholder="Введите" step="any" min="0">
+            </div>
+        </div>
+
+        <button class="btn-calculate" id="calculateBtn">Рассчитать</button>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <div class="result-card" id="resultCard" style="display: none;">
+            <div class="result-label">Итоговая стоимость</div>
+            <div class="result-value" id="resultValue">0</div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Получаем элементы
+            const baseRateSelect = document.getElementById('baseRateSelect');
+            const baseRateCustom = document.getElementById('baseRateCustom');
+            const territoryCoefSelect = document.getElementById('territoryCoefSelect');
+            const territoryCoefCustom = document.getElementById('territoryCoefCustom');
+            const powerCoefSelect = document.getElementById('powerCoefSelect');
+            const powerCoefCustom = document.getElementById('powerCoefCustom');
+            const ageExperienceCoef = document.getElementById('ageExperienceCoef');
+            const bonusMalusSelect = document.getElementById('bonusMalusSelect');
+            const bonusMalusCustom = document.getElementById('bonusMalusCustom');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const resultCard = document.getElementById('resultCard');
+            const resultValue = document.getElementById('resultValue');
+
+            // Функция переключения видимости кастомного поля
+            function toggleCustomInput(selectElement, customInput) {
+                if (selectElement.value === 'custom') {
+                    customInput.classList.add('active');
+                    customInput.focus();
+                } else {
+                    customInput.classList.remove('active');
+                    customInput.value = '';
+                }
+            }
+
+            // Слушатели изменений select'ов
+            baseRateSelect.addEventListener('change', () => {
+                toggleCustomInput(baseRateSelect, baseRateCustom);
+            });
+            territoryCoefSelect.addEventListener('change', () => {
+                toggleCustomInput(territoryCoefSelect, territoryCoefCustom);
+            });
+            powerCoefSelect.addEventListener('change', () => {
+                toggleCustomInput(powerCoefSelect, powerCoefCustom);
+            });
+            bonusMalusSelect.addEventListener('change', () => {
+                toggleCustomInput(bonusMalusSelect, bonusMalusCustom);
+            });
+
+            // Функция получения числового значения из select + custom
+            function getNumericValue(select, customInput) {
+                if (select.value === 'custom') {
+                    const val = customInput.value.trim();
+                    if (val === '') return NaN;
+                    const num = parseFloat(val);
+                    return isNaN(num) || num < 0 ? NaN : num;
+                } else {
+                    return parseFloat(select.value);
+                }
+            }
+
+            // Валидация и расчет
+            function calculate() {
+                // Сбор всех значений
+                const base = getNumericValue(baseRateSelect, baseRateCustom);
+                const territory = getNumericValue(territoryCoefSelect, territoryCoefCustom);
+                const power = getNumericValue(powerCoefSelect, powerCoefCustom);
+                const ageExpRaw = ageExperienceCoef.value.trim();
+                const ageExp = ageExpRaw === '' ? NaN : parseFloat(ageExpRaw);
+                const bonusMalus = getNumericValue(bonusMalusSelect, bonusMalusCustom);
+
+                // Проверка на валидность
+                if (isNaN(base) || base < 0) {
+                    showError('Введите корректную базовую ставку');
+                    return;
+                }
+                if (isNaN(territory) || territory < 0) {
+                    showError('Введите корректный коэффициент территории');
+                    return;
+                }
+                if (isNaN(power) || power < 0) {
+                    showError('Введите корректный коэффициент мощности');
+                    return;
+                }
+                if (isNaN(ageExp) || ageExp < 0) {
+                    showError('Введите корректный коэффициент возраст/стаж');
+                    return;
+                }
+                if (isNaN(bonusMalus) || bonusMalus < 0) {
+                    showError('Введите корректный коэффициент бонус-малус');
+                    return;
+                }
+
+                // Скрыть ошибку, если была
+                hideError();
+
+                // Расчёт
+                const result = base * territory * power * ageExp * bonusMalus;
+
+                // Округление до двух знаков после запятой, если нужно
+                const formattedResult = result % 1 === 0 ? result.toFixed(0) : result.toFixed(2);
+
+                // Отображение
+                resultValue.textContent = Number(formattedResult).toLocaleString('ru-RU');
+                resultCard.style.display = 'block';
+            }
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.add('show');
+                resultCard.style.display = 'none';
+            }
+
+            function hideError() {
+                errorMessage.classList.remove('show');
+            }
+
+            // Обработчик кнопки
+            calculateBtn.addEventListener('click', calculate);
+
+            // Дополнительно: при изменении любого параметра тоже можно пересчитывать (опционально)
+            // Но лучше оставить явное нажатие кнопки, чтобы не мелькало.
+            // Для удобства можно добавить "живой" пересчет при изменении, если раскомментировать:
+            /*
+            const allInputs = document.querySelectorAll('select, input');
+            allInputs.forEach(el => el.addEventListener('input', calculate));
+            allInputs.forEach(el => el.addEventListener('change', calculate));
+            */
+
+            // Инициализация начального состояния: скрываем кастомные поля, т.к. по умолчанию выбраны готовые значения
+            toggleCustomInput(baseRateSelect, baseRateCustom);
+            toggleCustomInput(territoryCoefSelect, territoryCoefCustom);
+            toggleCustomInput(powerCoefSelect, powerCoefCustom);
+            toggleCustomInput(bonusMalusSelect, bonusMalusCustom);
+
+            // Рассчитать при загрузке для демонстрации (по умолчанию)
+            calculate();
+        })();
+    </script>
+</body>
+</html>
